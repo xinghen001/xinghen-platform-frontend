@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { formatMessage, getLocale, setLocale } from 'umi/locale';
-import { Menu, Icon } from 'antd';
+import { Menu } from 'antd';
 
 import styles from './index.less';
 
@@ -22,8 +22,20 @@ export default class SelectLang extends PureComponent {
     ];
 
     const langMenu = (
-      <Menu className={styles.menu} selectedKeys={[selectedLang]}
+      <Menu className={styles.menu} selectedKeys={[selectedLang]} onClick={this.changeLang}>
+        {
+          locales.map(locale => (
+            <Menu.Item key={locale.name}>
+              <span role="img" aria-label={locale.label}>
+                {locale.icon}
+              </span>{' '}
+              {locale.label}
+            </Menu.Item>
+          ))
+        }
+      </Menu>
     );
 
+    return ();
   }
 }
