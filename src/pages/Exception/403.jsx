@@ -4,17 +4,17 @@ import Link from 'umi/link';
 import Exception from '@/components/Exception';
 
 /**
- * 404异常页面
+ * 403异常页面
  * @returns {*}
  * @constructor
  */
-const Exception404 = () => (
+const Exception403 = () => (
   <Exception
-    type="404"
-    description={formatMessage({ id: 'app.exception.description.404' })}
+    type="403"
+    desc={formatMessage({ id: 'app.exception.description.403' })}
     linkElement={Link}
     backText={formatMessage({ id: 'app.exception.back' })}
   />
 );
 
-export default Exception404;
+export default Exception403;

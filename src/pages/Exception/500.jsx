@@ -3,18 +3,13 @@ import { formatMessage } from 'umi/locale';
 import Link from 'umi/link';
 import Exception from '@/components/Exception';
 
-/**
- * 404异常页面
- * @returns {*}
- * @constructor
- */
-const Exception404 = () => (
+const Exception500 = () => (
   <Exception
-    type="404"
-    description={formatMessage({ id: 'app.exception.description.404' })}
+    type="500"
+    desc={formatMessage({ id: 'app.exception.description.500' })}
     linkElement={Link}
     backText={formatMessage({ id: 'app.exception.back' })}
   />
 );
 
-export default Exception404;
+export default Exception500;

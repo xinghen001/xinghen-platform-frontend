@@ -20,7 +20,7 @@ const plugins = [
         baseNavigator: true,
       },
       dynamicImport: {
-        loadingComponent: './components/PageLoading/index',
+        loadingComponent: './components/PageLoading',
         webpackChunkName: true,
       },
       pwa: pwa
