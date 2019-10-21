@@ -1,29 +1,24 @@
-import { getCurrentClient } from '../utils/auth';
+import { query } from '@/services/client';
+import { setClient, getClient } from '../utils/authority';
 
 
-export default {
-
-  state: {
-    currentClient: {},
-  },
-
+const ClientModel = {
+  namespace: 'client',
+  state: {},
   effects: {
-    *currentClient(_, { put }) {
-      const client = getCurrentClient();
+    *fetch(_, { call, put }) {
+      const response = yield call(query);
       yield put({
-        type: 'saveClient',
-        payload: client,
+        type: 'save',
+        payload: response,
       });
     },
   },
-
   reducers: {
-    saveClient(state, action) {
-      return {
-        ...state,
-        currentClient: action.payload,
-      };
+    save(state, action) {
+      setClient(action.payload);
+      return { ...action.payload };
     },
   },
-
 };
+export default ClientModel;

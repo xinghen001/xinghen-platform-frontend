@@ -1,3 +1,5 @@
 export default {
-  'component.globalHeader.help': '使用文档',
+  'component.tagSelect.expand': '展开',
+  'component.tagSelect.collapse': '收起',
+  'component.tagSelect.all': '全部',
 };

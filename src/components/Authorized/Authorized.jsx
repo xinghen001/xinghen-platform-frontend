@@ -1,8 +1,10 @@
-import CheckPermissions from './CheckPermissions';
+import React from 'react';
+import check from './CheckPermissions';
 
 const Authorized = ({ children, authority, noMatch = null }) => {
   const childrenRender = typeof children === 'undefined' ? null : children;
-  return CheckPermissions(authority, childrenRender, noMatch);
+  const dom = check(authority, childrenRender, noMatch);
+  return <>{dom}</>;
 };
 
 export default Authorized;

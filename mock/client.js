@@ -1,17 +1,11 @@
-function getFakeClient(req, res) {
-  const json = { code: 200, success: true, msg: '操作成功' };
-  json.data = {
+export default {
+  // 支持值为 Object 和 Array
+  'GET /api/client': {
+    id: 1,
     title: '测试工程效率平台',
-    phone: '0752-268888888',
-    owner: 'xxx',
-    docUrl: '',
-    copyright: '2020 xinghen',
-  };
-  return res.json(json);
-}
-
-const proxy = {
-  'GET /api/client/current': getFakeClient,
+    clientId: 'ee',
+    clientSecret: 'dfgertxv345df',
+    copyright: '2020 Aliyun',
+    docUrl: 'http://www.aliyun.com',
+  },
 };
-
-export default proxy;

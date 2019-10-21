@@ -1,11 +1,15 @@
+/**
+ * request 网络请求工具
+ *
+ */
 import fetch from 'dva/fetch';
-import hash from 'hash.js';
-import { Base64 } from 'js-base64';
 import router from 'umi/router';
+import { Base64 } from 'js-base64';
+import hash from 'hash.js';
 import { notification } from 'antd';
-import { removeAll, getToken } from './auth';
-import { clientId, clientSecret, login_url } from '../defaultSettings';
+import { getClient, getToken, removeAll } from './authority';
 
+export const loginPath = '/login';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -23,6 +27,29 @@ const codeMessage = {
   502: '网关错误。',
   503: '服务不可用，服务器暂时过载或维护。',
   504: '网关超时。',
+};
+/**
+ * 异常处理程序
+ */
+
+const errorHandler = error => {
+  const { response } = error;
+
+  if (response && response.status) {
+    const errorText = codeMessage[response.status] || response.statusText;
+    const { status, url } = response;
+    notification.error({
+      message: `请求错误 ${status}: ${url}`,
+      description: errorText,
+    });
+  } else if (!response) {
+    notification.error({
+      description: '您的网络发生异常，无法连接服务器',
+      message: '网络异常',
+    });
+  }
+
+  return response;
 };
 
 /**
@@ -50,19 +77,39 @@ const checkStatus = response => {
 };
 
 /**
+ * 缓存
+ * @param response
+ * @param hashcode
+ * @returns {*}
+ */
+const cachedSave = (response, hashcode) => {
+  const contentType = response.headers.get('Content-Type');
+  if (contentType && contentType.match(/application\/json/i)) {
+    response
+      .clone()
+      .text()
+      .then(content => {
+        sessionStorage.setItem(hashcode, content);
+        sessionStorage.setItem(`${hashcode}:timestamp`, Date.now());
+      });
+  }
+  return response;
+};
+
+/**
  * 重定向
  * @param url
  */
 function redirect(url) {
-  let resutUrl = url;
+  let resultUrl = url;
   const currentUrlParams = new URL(window.location.href);
-  const urlParams = new URL(resutUrl);
+  const urlParams = new URL(resultUrl);
   if (urlParams.origin === currentUrlParams.origin) {
-    resutUrl = resutUrl.substr(urlParams.origin.length);
-    if (resutUrl.match(/^\/.*#/)) {
-      resutUrl = resutUrl.substr(resutUrl.indexOf('#') + 1);
+    resultUrl = resultUrl.substr(urlParams.origin.length);
+    if (resultUrl.match(/^\/.*#/)) {
+      resultUrl = resultUrl.substr(resultUrl.indexOf('#') + 1);
     }
-    router.push(resutUrl);
+    router.push(resultUrl);
   } else {
     window.location.href = url;
   }
@@ -82,12 +129,12 @@ const checkServerCode = response => {
       message: response.msg || codeMessage[response.code],
     });
   } else if (response.code === 401) {
-    if (window.location.hash.endsWith('/user/login')) return false;
+    if (window.location.hash.endsWith(loginPath)) return false;
     notification.error({
       message: response.msg || codeMessage[response.code],
     });
     removeAll();
-    redirect(login_url);
+    redirect(loginPath);
   } else if (response.code === 404) {
     notification.error({
       message: response.msg || codeMessage[response.code],
@@ -101,97 +148,55 @@ const checkServerCode = response => {
 };
 
 /**
- * 缓存
- * @param response
- * @param hashcode
- * @returns {*}
- */
-const cachedSave = (response, hashcode) => {
-  /**
-   * Clone a response data and store it in sessionStorage
-   * Does not support data other than json, Cache only json
-   */
-  const contentType = response.headers.get('Content-Type');
-  if (contentType && contentType.match(/application\/json/i)) {
-    // All data is saved as text
-    response
-      .clone()
-      .text()
-      .then(content => {
-        sessionStorage.setItem(hashcode, content);
-        sessionStorage.setItem(`${hashcode}:timestamp`, Date.now());
-      });
-  }
-  return response;
-};
-
-/**
  * 封装请求方法
  * @param url
  * @param option
+ * @param secured
  * @returns {*}
  */
-export default function request(url, option) {
+export default function request(url, option, secured = true) {
 
-  const options = {
-    ...option,
-  };
-
+  const options = { ...options };
   const fingerprint = url + (options.body ? JSON.stringify(options.body) : '');
-  const hashcode = hash
-    .sha256()
-    .update(fingerprint)
-    .digest('hex');
-
-  const defaultOptions = {
-    credentials: 'include',
-  };
-  const newOptions = { ...defaultOptions, ...options };
-
-  newOptions.headers = {
-    ...newOptions.headers,
+  const hashcode = hash.sha256().update(fingerprint).digest('hex');
+  const newOptions = { credentials: 'include', ...options };
+  if (secured) {
     // 客户端认证
-    Authorization: `Basic ${Base64.encode(`${clientId}:${clientSecret}`)}`,
-  };
-
+    const { clientId, clientSecret } = getClient();
+    newOptions.headers = {
+      ...newOptions.headers,
+      Authorization: `Basic ${Base64.encode(`${clientId}:${clientSecret}`)}`,
+    };
+  }
   // 获取token，鉴权
   const token = getToken();
   if (token) {
     newOptions.headers = {
       ...newOptions.headers,
-      // token鉴权
       'E-Auth': token,
     };
   }
-
-  if (
-    newOptions.method === 'POST' ||
-    newOptions.method === 'PUT' ||
-    newOptions.method === 'DELETE'
-  ) {
-    if (!(newOptions.body instanceof FormData)) {
-      newOptions.headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=utf-8',
-        ...newOptions.headers,
-      };
-      newOptions.body = JSON.stringify(newOptions.body);
-    } else {
-      // newOptions.body is FormData
-      newOptions.headers = {
-        Accept: 'application/json',
-        ...newOptions.headers,
-      };
-    }
+  if (newOptions.method in ['POST', 'PUT', 'DELETE', 'post', 'put', 'delete']) {
+    newOptions.headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
+      ...newOptions.headers,
+    };
+    newOptions.body = JSON.stringify(newOptions.body);
+  } else {
+    newOptions.headers = {
+      Accept: 'application/json',
+      ...newOptions.headers,
+    };
   }
 
-  const expirys = options.expirys && 60;
-  if (options.expirys !== false) {
+  const expires = options.expires && 60;
+  if (options.expires !== false) {
     const cached = sessionStorage.getItem(hashcode);
     const whenCached = sessionStorage.getItem(`${hashcode}:timestamp`);
     if (cached !== null && whenCached !== null) {
       const age = (Date.now() - whenCached) / 1000;
-      if (age < expirys) {
+      if (age < expires) {
         const response = new Response(new Blob([cached]));
         return response.json();
       }
@@ -200,8 +205,7 @@ export default function request(url, option) {
     }
   }
 
-  return fetch(url, newOptions)
-    .then(checkStatus)
+  return fetch(url, newOptions).then(checkStatus)
     .then(response => cachedSave(response, hashcode))
     .then(response => {
       if (newOptions.method === 'DELETE' || response.status === 204) {
@@ -226,10 +230,9 @@ export default function request(url, option) {
         return;
       }
       if (status <= 504 && status >= 500) {
-        if (window.location.href.indexOf('/login') < 0) {
+        if (window.location.href.indexOf(loginPath) < 0) {
           router.push('/exception/500');
         }
       }
     });
-
 }

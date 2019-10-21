@@ -1,23 +1,10 @@
-// import { stringify } from 'qs';
-import request from '../utils/request';
-import func from '../utils/Func';
-
-/**
- * 用户登录
- * @param params
- * @returns {Promise<*>}
- */
-export async function accountLogin(params) {
-  return request('/api/user/login', {
-    method: 'POST',
-    body: func.toFormData(params),
-  });
+import request from '@/utils/request';
+export async function query() {
+  return request('/api/users');
 }
-
-/**
- * 获取当前用户信息
- * @returns {Promise<*>}
- */
-export async function currentUser() {
-  return request('/api/user/current');
+export async function queryCurrent() {
+  return request('/api/currentUser');
+}
+export async function queryNotices() {
+  return request('/api/notices');
 }

@@ -1,3 +1,5 @@
 export default {
-  'component.globalHeader.help': 'Help',
+  'component.tagSelect.expand': 'Expand',
+  'component.tagSelect.collapse': 'Collapse',
+  'component.tagSelect.all': 'All',
 };
