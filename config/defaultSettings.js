@@ -13,4 +13,5 @@ export default {
   pwa: false,
 
   defaultTitle: '工程效率平台',
+  loginPath: '/login',
 };

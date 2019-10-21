@@ -8,8 +8,9 @@ import { Base64 } from 'js-base64';
 import hash from 'hash.js';
 import { notification } from 'antd';
 import { getClient, getToken, removeAll } from './authority';
+import defaultSettings from '../../config/defaultSettings';
 
-export const loginPath = '/login';
+const { loginPath } = defaultSettings;
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',

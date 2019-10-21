@@ -60,9 +60,11 @@ const BasicLayout = props => {
         type: 'user/fetchCurrent',
       });
       dispatch({
+        type: 'menu/fetchMenuData',
+      });
+      dispatch({
         type: 'settings/getSetting',
       });
-      // TODO: 获取菜单列表
     }
   }, []);
   /**

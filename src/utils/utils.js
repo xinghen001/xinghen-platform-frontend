@@ -20,4 +20,38 @@ export const isAntDesignProOrDev = () => {
 
   return isAntDesignPro();
 };
+
 export const getPageQuery = () => parse(window.location.href.split('?')[1]);
+
+/**
+ * 格式化菜单列表
+ * @param menus
+ * @returns {*}
+ */
+export const formatMenus = (menus) => {
+  function format(arr) {
+    arr.forEach(node => {
+      const item = node;
+      if (item.children && Array.isArray(item.children)) {
+        item.routes = item.children;
+        format(item.routes);
+      }
+      if (item.isOpen === 2) {
+        item.target = '_blank';
+      }
+      item.name = item.code;
+      if (item.source) {
+        item.icon = item.source;
+      }
+      delete item.id;
+      delete item.parentId;
+      delete item.sort;
+      delete item.code;
+      delete item.source;
+      delete item.children;
+    });
+    return arr;
+  }
+
+  return format(menus);
+};
