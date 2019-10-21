@@ -1,17 +1,20 @@
 import { query } from '@/services/client';
-import { setClient, getClient } from '../utils/authority';
+import { setClient } from '../utils/authority';
 
 
 const ClientModel = {
   namespace: 'client',
   state: {},
   effects: {
-    *fetch(_, { call, put }) {
+    * fetch(_, { call, put }) {
       const response = yield call(query);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
+      if (response.success) {
+        const { data } = response;
+        yield put({
+          type: 'save',
+          payload: data,
+        });
+      }
     },
   },
   reducers: {

@@ -10,15 +10,18 @@ const MenuModel = {
   },
 
   effects: {
-    *fetchMenuData({ _ }, { call, put }) {
+    * fetchMenuData(_, { call, put }) {
       const response = yield call(queryAll);
-      console.log(response)
-      const menuData = formatMenus(response);
-      setMenus(menuData);
-      yield put({
-        type: 'save',
-        payload: { menuData },
-      });
+      if (response.success) {
+        const { data } = response;
+        // const menuData = formatMenus(data);
+        const menuData = data;
+        setMenus(menuData);
+        yield put({
+          type: 'save',
+          payload: { menuData },
+        });
+      }
     },
   },
 
@@ -32,3 +35,5 @@ const MenuModel = {
   },
 
 };
+
+export default MenuModel;

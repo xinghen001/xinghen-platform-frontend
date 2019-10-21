@@ -29,29 +29,7 @@ const codeMessage = {
   503: '服务不可用，服务器暂时过载或维护。',
   504: '网关超时。',
 };
-/**
- * 异常处理程序
- */
 
-const errorHandler = error => {
-  const { response } = error;
-
-  if (response && response.status) {
-    const errorText = codeMessage[response.status] || response.statusText;
-    const { status, url } = response;
-    notification.error({
-      message: `请求错误 ${status}: ${url}`,
-      description: errorText,
-    });
-  } else if (!response) {
-    notification.error({
-      description: '您的网络发生异常，无法连接服务器',
-      message: '网络异常',
-    });
-  }
-
-  return response;
-};
 
 /**
  * 检查状态
@@ -156,8 +134,7 @@ const checkServerCode = response => {
  * @returns {*}
  */
 export default function request(url, option, secured = true) {
-
-  const options = { ...options };
+  const options = { ...option };
   const fingerprint = url + (options.body ? JSON.stringify(options.body) : '');
   const hashcode = hash.sha256().update(fingerprint).digest('hex');
   const newOptions = { credentials: 'include', ...options };
