@@ -12,19 +12,19 @@ export default {
           {
             id: 2,
             code: 'analysis',
-            name: 'analysis',
+            name: '分析',
             path: '/dashboard/analysis',
           },
           {
             id: 3,
             code: 'monitor',
-            name: 'monitor',
+            name: '监控',
             path: '/dashboard/monitor',
           },
           {
             id: 4,
             code: 'workplace',
-            name: 'workplace',
+            name: '工作台',
             path: '/dashboard/workplace',
           },
         ],

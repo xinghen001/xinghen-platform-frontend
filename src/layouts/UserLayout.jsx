@@ -3,10 +3,11 @@ import DocumentTitle from 'react-document-title';
 import Link from 'umi/link';
 import React from 'react';
 import { connect } from 'dva';
-import { formatMessage } from 'umi-plugin-react/locale';
-import SelectLang from '@/components/SelectLang';
+import { getClient } from '../utils/authority';
 import logo from '../assets/logo.svg';
 import styles from './UserLayout.less';
+
+const { title, desc, copyright } = getClient();
 
 const UserLayout = props => {
   const {
@@ -25,29 +26,25 @@ const UserLayout = props => {
   return (
     <DocumentTitle
       title={getPageTitle({
+        title: title,
         pathname: location.pathname,
         breadcrumb,
-        formatMessage,
         ...props,
       })}
     >
       <div className={styles.container}>
-        <div className={styles.lang}>
-          <SelectLang />
-        </div>
         <div className={styles.content}>
           <div className={styles.top}>
             <div className={styles.header}>
               <Link to="/">
-                <img alt="logo" className={styles.logo} src={logo} />
-                <span className={styles.title}>Ant Design</span>
+                <span className={styles.title}>{title}</span>
               </Link>
             </div>
-            <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
+            <div className={styles.desc}>{desc}</div>
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <DefaultFooter copyright={copyright} links={[]}/>
       </div>
     </DocumentTitle>
   );

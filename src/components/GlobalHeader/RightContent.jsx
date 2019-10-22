@@ -1,9 +1,7 @@
 import { Icon, Tooltip } from 'antd';
 import React from 'react';
 import { connect } from 'dva';
-import { formatMessage } from 'umi-plugin-react/locale';
 import Avatar from './AvatarDropdown';
-import SelectLang from '../SelectLang';
 import styles from './index.less';
 
 const GlobalHeaderRight = props => {
@@ -18,9 +16,7 @@ const GlobalHeaderRight = props => {
     <div className={className}>
       {/* 帮助文档 */}
       <Tooltip
-        title={formatMessage({
-          id: 'component.globalHeader.help',
-        })}
+        title="使用文档"
       >
         <a
           target="_blank"
@@ -33,8 +29,6 @@ const GlobalHeaderRight = props => {
       </Tooltip>
       {/* 用户信息 */}
       <Avatar menu />
-      {/* 选择语言 */}
-      <SelectLang className={styles.action} />
     </div>
   );
 };

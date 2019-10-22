@@ -1,12 +1,12 @@
-import ProLayout, { DefaultFooter, SettingDrawer } from '@ant-design/pro-layout';
+import ProLayout, { DefaultFooter } from '@ant-design/pro-layout';
 import React from 'react';
 import Link from 'umi/link';
 import { connect } from 'dva';
 import { Icon } from 'antd';
-import { formatMessage } from 'umi-plugin-react/locale';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import { getClient } from '@/utils/authority';
+import { getCurrentUser } from '../utils/authority';
 import logo from '../assets/logo.svg';
 
 /**
@@ -24,12 +24,6 @@ class BasicLayout extends React.Component {
   componentDidMount() {
     const { dispatch } = this.props;
     if (dispatch) {
-      dispatch({
-        type: 'user/fetchCurrent',
-      });
-      dispatch({
-        type: 'menu/fetchMenuData',
-      });
       dispatch({
         type: 'settings/getSetting',
       });
@@ -88,10 +82,7 @@ class BasicLayout extends React.Component {
           breadcrumbRender={(routers = []) => [
             {
               path: '/',
-              breadcrumbName: formatMessage({
-                id: 'menu.home',
-                defaultMessage: 'Home',
-              }),
+              breadcrumbName: '首页',
             },
             ...routers,
           ]}
@@ -105,29 +96,18 @@ class BasicLayout extends React.Component {
           }}
           footerRender={footerRender}
           menuDataRender={menuDataRender}
-          formatMessage={formatMessage}
-          rightContentRender={rightProps => <RightContent {...rightProps} {...docUrl} />}
+          rightContentRender={() => <RightContent {...getCurrentUser()} {...docUrl} />}
           {...this.props}
           {...settings}
         >
           {children}
         </ProLayout>
-        <SettingDrawer
-          settings={settings}
-          onSettingChange={config =>
-            dispatch({
-              type: 'settings/changeSetting',
-              payload: config,
-            })
-          }
-        />
       </>
     );
   }
 }
 
-export default connect(({ global, menu, settings }) => ({
+export default connect(({ global, settings }) => ({
   collapsed: global.collapsed,
-  menuData: menu.menuData,
   settings,
 }))(BasicLayout);

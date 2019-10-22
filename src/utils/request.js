@@ -8,9 +8,6 @@ import { Base64 } from 'js-base64';
 import hash from 'hash.js';
 import { notification } from 'antd';
 import { getClient, getToken, removeAll } from './authority';
-import defaultSettings from '../../config/defaultSettings';
-
-const { loginPath } = defaultSettings;
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -18,7 +15,7 @@ const codeMessage = {
   202: '一个请求已经进入后台排队（异步任务）。',
   204: '删除数据成功。',
   400: '发出的请求有错误，服务器没有进行新建或修改数据的操作。',
-  401: '用户没有权限（令牌、用户名、密码错误）。',
+  401: '用户没有登录或登录失效，请退出重新登录。',
   403: '用户得到授权，但是访问是被禁止的。',
   404: '发出的请求针对的是不存在的记录，服务器没有进行操作。',
   406: '请求的格式不可得。',
@@ -108,12 +105,11 @@ const checkServerCode = response => {
       message: response.msg || codeMessage[response.code],
     });
   } else if (response.code === 401) {
-    if (window.location.hash.endsWith(loginPath)) return false;
-    notification.error({
-      message: response.msg || codeMessage[response.code],
-    });
+    if (window.location.hash.endsWith('/user/login')) return false;
+    // notification.error({
+    //   message: response.msg || codeMessage[response.code],
+    // });
     removeAll();
-    redirect(loginPath);
   } else if (response.code === 404) {
     notification.error({
       message: response.msg || codeMessage[response.code],
@@ -208,7 +204,7 @@ export default function request(url, option, secured = true) {
         return;
       }
       if (status <= 504 && status >= 500) {
-        if (window.location.href.indexOf(loginPath) < 0) {
+        if (window.location.href.indexOf('/login') < 0) {
           router.push('/exception/500');
         }
       }

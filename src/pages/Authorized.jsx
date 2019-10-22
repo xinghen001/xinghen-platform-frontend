@@ -3,16 +3,16 @@ import Redirect from 'umi/redirect';
 import { connect } from 'dva';
 import pathToRegexp from 'path-to-regexp';
 import Authorized from '@/utils/Authorized';
+import { getToken } from '@/utils/authority';
 import defaultSettings from '../../config/defaultSettings';
-
-const { loginPath } = defaultSettings;
+import { stringify } from "querystring";
 
 const getRouteAuthority = (path, routeData) => {
   let authorities;
   routeData.forEach(route => {
     if (route.authority) {
       authorities = route.authority;
-    } // match prefix
+    }
 
     if (pathToRegexp(`${route.path}(.*)`).test(path)) {
       // exact match
@@ -40,11 +40,20 @@ const AuthComponent = ({
                        }) => {
   const { currentUser } = user;
   const { routes = [] } = route;
-  const isLogin = currentUser && currentUser.name;
+  const isLogin = getToken();
+  const { ssoEnabled, ssoLoginUrl } = defaultSettings;
+  const queryString = stringify({
+    redirect: window.location.href,
+  });
+
+  if (!isLogin && ssoEnabled && ssoLoginUrl) {
+    window.location.href = `${ssoLoginUrl}?${queryString}`;
+    return null;
+  }
   return (
     <Authorized
       authority={getRouteAuthority(location.pathname, routes) || ''}
-      noMatch={isLogin ? <Redirect to="/exception/403" /> : <Redirect to={loginPath} />}
+      noMatch={isLogin ? <Redirect to="/exception/403" /> : <Redirect to="/user/login" />}
     >
       {children}
     </Authorized>

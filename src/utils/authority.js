@@ -2,10 +2,17 @@ import store from 'store';
 import { reloadAuthorized } from './Authorized'; // use localStorage to store the authority info, which might be sent from server in actual project.
 
 const TOKEN_KEY = 'e-token';
-const MENU_KEY = 'e-menu';
 const CLIENT_KEY = 'e-current-client';
 const USER_KEY = 'e-current-user';
 const AUTH_KEY = 'e-authority';
+
+/**
+ * 过期时间一小时
+ * @returns {number}
+ */
+function getExpire() {
+  return new Date().getTime() + 3600000;
+}
 
 /**
  * 从缓存中获取权限信息
@@ -30,7 +37,7 @@ export function getAuthority(str) {
 export function setAuthority(authority) {
   const proAuthority = typeof authority === 'string' ? [authority] : authority;
   reloadAuthorized();
-  return store.set(AUTH_KEY, proAuthority);
+  return store.set(AUTH_KEY, proAuthority, getExpire());
 }
 
 /**
@@ -46,23 +53,7 @@ export function getToken() {
  * @param token
  */
 export function setToken(token) {
-  store.set(TOKEN_KEY, token);
-}
-
-/**
- * 从缓存中获取菜单列表
- * @returns {any | Array}
- */
-export function getMenus() {
-  return store.get(MENU_KEY) || [];
-}
-
-/**
- * 把菜单列表存储到缓存中
- * @param menus
- */
-export function setMenus(menus) {
-  store.set(MENU_KEY, menus);
+  store.set(TOKEN_KEY, token, getExpire());
 }
 
 /**
@@ -78,7 +69,7 @@ export function getClient() {
  * @param client
  */
 export function setClient(client) {
-  store.set(CLIENT_KEY, client);
+  store.set(CLIENT_KEY, client, getExpire());
 }
 
 /**
@@ -94,12 +85,15 @@ export function getCurrentUser() {
  * @param client
  */
 export function setCurrentUser(user) {
-  store.set(USER_KEY, user);
+  store.set(USER_KEY, user, getExpire());
 }
 
 /**
  * 清除缓存
  */
 export function removeAll() {
-  store.clear();
+  store.remove(TOKEN_KEY);
+  store.remove(CLIENT_KEY);
+  store.remove(USER_KEY);
+  store.remove(AUTH_KEY);
 }

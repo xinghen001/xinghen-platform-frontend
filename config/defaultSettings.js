@@ -13,5 +13,6 @@ export default {
   pwa: false,
 
   defaultTitle: '工程效率平台',
-  loginPath: '/login',
+  ssoEnabled: true,
+  ssoLoginUrl: 'http://localhost:8000/user/preLogin',
 };

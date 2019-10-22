@@ -5,9 +5,6 @@ import { stringify } from 'querystring';
 import PageLoading from '@/components/PageLoading';
 import defaultSettings from '../../config/defaultSettings';
 
-const { loginPath } = defaultSettings;
-
-
 class SecurityLayout extends React.Component {
   state = {
     isReady: false,
@@ -29,7 +26,6 @@ class SecurityLayout extends React.Component {
   render() {
     const { isReady } = this.state;
     const { children, loading, currentUser } = this.props;
-
     const isLogin = currentUser && currentUser.id;
     const queryString = stringify({
       redirect: window.location.href,
@@ -40,9 +36,13 @@ class SecurityLayout extends React.Component {
     }
 
     if (!isLogin) {
-      return <Redirect to={`${loginPath}?${queryString}`}></Redirect>;
+      const { ssoEnabled, ssoLoginUrl } = defaultSettings;
+      if (ssoEnabled && ssoLoginUrl) {
+        window.location.href = `${ssoLoginUrl}?${queryString}`;
+        return;
+      }
+      return <Redirect to={`/user/login?${queryString}`}></Redirect>;
     }
-
     return children;
   }
 }

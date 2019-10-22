@@ -1,5 +1,4 @@
 import { Avatar, Icon, Menu, Spin } from 'antd';
-import { FormattedMessage } from 'umi-plugin-react/locale';
 import React from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -9,7 +8,6 @@ import styles from './index.less';
 class AvatarDropdown extends React.Component {
   onMenuClick = event => {
     const { key } = event;
-
     if (key === 'logout') {
       const { dispatch } = this.props;
       if (dispatch) {
@@ -19,7 +17,6 @@ class AvatarDropdown extends React.Component {
       }
       return;
     }
-
     router.push(`/account/${key}`);
   };
 
@@ -35,7 +32,7 @@ class AvatarDropdown extends React.Component {
       <Menu className={styles.menu} selectedKeys={[]} onClick={this.onMenuClick}>
         <Menu.Item key="logout">
           <Icon type="logout" />
-          <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
+          退出登录
         </Menu.Item>
       </Menu>
     );
