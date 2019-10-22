@@ -1,4 +1,5 @@
 export default [
+
   {
     path: '/user',
     component: '../layouts/UserLayout',
@@ -12,6 +13,9 @@ export default [
         name: 'SSO登录',
         path: '/user/sso-login',
         component: './user/sso-login',
+      },
+      {
+        component: './404',
       },
     ],
   },

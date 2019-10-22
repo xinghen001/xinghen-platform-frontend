@@ -31,7 +31,7 @@ class SecurityLayout extends React.Component {
       redirect: window.location.href,
     });
 
-    if ((!isLogin && loading) || !isReady) {
+    if (loading || !isReady) {
       return <PageLoading />;
     }
 
@@ -39,7 +39,7 @@ class SecurityLayout extends React.Component {
       const { ssoEnabled, ssoLoginUrl } = defaultSettings;
       if (ssoEnabled && ssoLoginUrl) {
         window.location.href = `${ssoLoginUrl}?${queryString}`;
-        return;
+        return null;
       }
       return <Redirect to={`/user/login?${queryString}`}></Redirect>;
     }

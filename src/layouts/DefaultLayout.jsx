@@ -3,7 +3,6 @@ import PageLoading from '@/components/PageLoading';
 import { connect } from 'dva';
 
 class Layout extends React.Component {
-
   state = {
     isReady: false,
   };
@@ -26,7 +25,7 @@ class Layout extends React.Component {
     const { children, loading, client } = this.props;
     const initFinished = client && client.id;
 
-    if ((!initFinished && loading) || !isReady) {
+    if (!initFinished || loading || !isReady) {
       return <PageLoading />;
     }
     return <div>{children}</div>;
@@ -34,6 +33,6 @@ class Layout extends React.Component {
 }
 
 export default connect(({ client, loading }) => ({
-  client: client,
+  client,
   loading: loading.models.client,
 }))(Layout);

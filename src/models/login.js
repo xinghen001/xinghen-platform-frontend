@@ -1,9 +1,8 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'querystring';
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/login';
-import { setAuthority } from '@/utils/authority';
+import { accountLogin, ssoLogin, getFakeCaptcha } from '@/services/login';
 import { getPageQuery } from '@/utils/utils';
-import { removeAll, setToken } from '../utils/authority';
+import { removeAll, setAuthority, setToken } from '../utils/authority';
 import defaultSettings from '../../config/defaultSettings';
 
 const Model = {
@@ -14,10 +13,11 @@ const Model = {
   effects: {
     // 登录
     * login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      const response = yield call(accountLogin, payload);
+      const { success, data } = response;
       yield put({
         type: 'changeLoginStatus',
-        payload: response,
+        payload: { status: success, data },
       });
 
       if (response.success) {
@@ -42,32 +42,30 @@ const Model = {
 
     // 单点登录
     * ssoLogin({ payload }, { call, put }) {
-      const { token, type } = payload;
-      setToken(token);
+      const response = call(ssoLogin, payload);
+      const { success, data } = response;
       yield put({
         type: 'changeLoginStatus',
-        payload: {
-          token,
-          status: true,
-          type,
-        },
+        payload: { status: success, data },
       });
-      const urlParams = new URL(window.location.href);
-      const params = getPageQuery();
-      let { redirect } = params;
-      if (redirect) {
-        const redirectUrlParams = new URL(redirect);
-        if (redirectUrlParams.origin === urlParams.origin) {
-          redirect = redirect.substr(urlParams.origin.length);
-          if (redirect.match(/^\/.*#/)) {
-            redirect = redirect.substr(redirect.indexOf('#') + 1);
+      if (success) {
+        const urlParams = new URL(window.location.href);
+        const params = getPageQuery();
+        let { redirect } = params;
+        if (redirect) {
+          const redirectUrlParams = new URL(redirect);
+          if (redirectUrlParams.origin === urlParams.origin) {
+            redirect = redirect.substr(urlParams.origin.length);
+            if (redirect.match(/^\/.*#/)) {
+              redirect = redirect.substr(redirect.indexOf('#') + 1);
+            }
+          } else {
+            window.location.href = redirect;
+            return;
           }
-        } else {
-          window.location.href = redirect;
-          return;
         }
+        yield put(routerRedux.replace(redirect || '/'));
       }
-      yield put(routerRedux.replace(redirect || '/'));
     },
 
     // 获取验证码
@@ -97,8 +95,13 @@ const Model = {
   },
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setToken(payload.token);
-      return { ...state, status: payload.status, type: payload.type };
+      const { status, data } = payload;
+      if (status) {
+        const { currentAuthority, token } = data;
+        setToken(token);
+        setAuthority(currentAuthority);
+      }
+      return { ...state, status };
     },
   },
 };

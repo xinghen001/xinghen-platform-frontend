@@ -8,7 +8,7 @@ import PageLoading from '@/components/PageLoading';
 import styles from './style.less';
 
 @connect(({ login, loading }) => ({
-  login,
+  status: login.status,
   loading: loading.effects['login/ssoLogin'],
 }))
 export default class SsoLogin extends Component {
@@ -38,7 +38,7 @@ export default class SsoLogin extends Component {
 
   render() {
     const { isReady } = this.state;
-    const { loading, login } = this.props;
+    const { loading, status } = this.props;
     console.log(this.props);
     if ((!status && !isReady) || loading) {
       return <PageLoading />;

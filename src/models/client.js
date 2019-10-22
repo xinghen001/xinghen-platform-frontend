@@ -1,5 +1,5 @@
 import { query } from '@/services/client';
-import { setClient } from '../utils/authority';
+import { setClient, getClient } from '../utils/authority';
 
 
 const ClientModel = {
@@ -7,14 +7,17 @@ const ClientModel = {
   state: {},
   effects: {
     * fetch(_, { call, put }) {
-      const response = yield call(query);
-      if (response.success) {
-        const { data } = response;
-        yield put({
-          type: 'save',
-          payload: data,
-        });
+      let currentClient = getClient();
+      if (!currentClient || !currentClient.id) {
+        const response = yield call(query);
+        if (response.success) {
+          currentClient = response.data;
+        }
       }
+      yield put({
+        type: 'save',
+        payload: currentClient || {},
+      });
     },
   },
   reducers: {

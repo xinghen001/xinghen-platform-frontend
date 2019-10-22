@@ -5,8 +5,6 @@ import { connect } from 'dva';
 import { Icon } from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import { getClient } from '@/utils/authority';
-import { getCurrentUser } from '../utils/authority';
 import logo from '../assets/logo.svg';
 
 /**
@@ -27,6 +25,12 @@ class BasicLayout extends React.Component {
       dispatch({
         type: 'settings/getSetting',
       });
+      dispatch({
+        type: 'client/fetch',
+      });
+      dispatch({
+        type: 'user/fetchCurrent',
+      });
     }
   }
 
@@ -41,19 +45,18 @@ class BasicLayout extends React.Component {
   };
 
   render() {
-    const { dispatch, children, settings } = this.props;
+    const { children, settings, client, currentUser } = this.props;
     const {
       title,
       copyright,
-      docUrl,
       gitLab,
-    } = getClient();
+    } = client;
     const footerRender = () => {
       const links = [];
       if (gitLab) {
         links.push({
           key: 'gitlab',
-          title: <Icon type="gitlab" />,
+          title: <Icon type="gitlab"/>,
           href: { gitLab },
           blankTarget: true,
         });
@@ -96,7 +99,7 @@ class BasicLayout extends React.Component {
           }}
           footerRender={footerRender}
           menuDataRender={menuDataRender}
-          rightContentRender={() => <RightContent {...getCurrentUser()} {...docUrl} />}
+          rightContentRender={() => <RightContent {...currentUser} {...client} />}
           {...this.props}
           {...settings}
         >
@@ -107,7 +110,9 @@ class BasicLayout extends React.Component {
   }
 }
 
-export default connect(({ global, settings }) => ({
+export default connect(({ global, settings, client, user }) => ({
   collapsed: global.collapsed,
   settings,
+  client,
+  currentUser: user.currentUser,
 }))(BasicLayout);

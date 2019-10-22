@@ -1,8 +1,7 @@
 export default {
   // 支持值为 Object 和 Array
   'GET /api/currentUser': (req, res) => {
-    const token = req.headers['E-Auth'];
-    res.send(req.headers);
+    const token = req.headers['e-token'];
     if (token) {
       res.send({
         code: 200,
@@ -37,8 +36,40 @@ export default {
       res.send({
         code: 401,
         success: false,
-      })
+      });
     }
-    return;
+  },
+  'POST /api/account/login': (req, res) => {
+    const { password, userName } = req.body;
+    if (password === '123456' && userName === 'admin') {
+      res.send({
+        code: 200,
+        success: true,
+        data: {
+          currentAuthority: 'admin',
+          token: '234d45234',
+        },
+      });
+    } else if (password === '123456' && userName === 'user') {
+      res.send({
+        code: 200,
+        success: true,
+        data: {
+          currentAuthority: 'user',
+          token: '234d45234',
+        },
+      });
+    }
+  },
+  'POST /api/account/ssoLogin': (req, res) => {
+    const { token } = req.body;
+    res.send({
+      code: 200,
+      success: true,
+      data: {
+        token,
+        currentAuthority: 'admin',
+      },
+    });
   },
 };

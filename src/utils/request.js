@@ -73,25 +73,6 @@ const cachedSave = (response, hashcode) => {
 };
 
 /**
- * 重定向
- * @param url
- */
-function redirect(url) {
-  let resultUrl = url;
-  const currentUrlParams = new URL(window.location.href);
-  const urlParams = new URL(resultUrl);
-  if (urlParams.origin === currentUrlParams.origin) {
-    resultUrl = resultUrl.substr(urlParams.origin.length);
-    if (resultUrl.match(/^\/.*#/)) {
-      resultUrl = resultUrl.substr(resultUrl.indexOf('#') + 1);
-    }
-    router.push(resultUrl);
-  } else {
-    window.location.href = url;
-  }
-}
-
-/**
  * 检查返回状态码
  * @param response
  * @returns {*}
@@ -147,7 +128,7 @@ export default function request(url, option, secured = true) {
   if (token) {
     newOptions.headers = {
       ...newOptions.headers,
-      'E-Auth': token,
+      'e-token': token,
     };
   }
   if (newOptions.method in ['POST', 'PUT', 'DELETE', 'post', 'put', 'delete']) {

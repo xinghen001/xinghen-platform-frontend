@@ -1,9 +1,9 @@
 import { Alert, Checkbox, Icon } from 'antd';
 import React, { Component } from 'react';
-import Link from 'umi/link';
 import { connect } from 'dva';
 import LoginComponents from './components/Login';
 import styles from './style.less';
+
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = LoginComponents;
 
 @connect(({ login, loading }) => ({
@@ -12,15 +12,18 @@ const { Tab, UserName, Password, Mobile, Captcha, Submit } = LoginComponents;
 }))
 class Login extends Component {
   loginForm = undefined;
+
   state = {
     type: 'account',
     autoLogin: true,
   };
+
   changeAutoLogin = e => {
     this.setState({
       autoLogin: e.target.checked,
     });
   };
+
   handleSubmit = (err, values) => {
     const { type } = this.state;
 
@@ -32,11 +35,13 @@ class Login extends Component {
       });
     }
   };
+
   onTabChange = type => {
     this.setState({
       type,
     });
   };
+
   onGetCaptcha = () =>
     new Promise((resolve, reject) => {
       if (!this.loginForm) {
@@ -61,6 +66,7 @@ class Login extends Component {
         }
       });
     });
+
   renderMessage = content => (
     <Alert
       style={{
@@ -91,15 +97,15 @@ class Login extends Component {
             tab="账号登录"
           >
             {status === 'error' &&
-              loginType === 'account' &&
-              !submitting && "用户名或密码错误"}
+            loginType === 'account' &&
+            !submitting && '用户名或密码错误'}
             <UserName
               name="userName"
               placeholder="用户名"
               rules={[
                 {
                   required: true,
-                  message: "用户名不能为空",
+                  message: '用户名不能为空',
                 },
               ]}
             />
@@ -109,7 +115,7 @@ class Login extends Component {
               rules={[
                 {
                   required: true,
-                  message: "密码不能为空",
+                  message: '密码不能为空',
                 },
               ]}
               onPressEnter={e => {
@@ -126,19 +132,19 @@ class Login extends Component {
             tab="手机号登录"
           >
             {status === 'error' &&
-              loginType === 'mobile' &&
-              !submitting && "验证码输入错误"}
+            loginType === 'mobile' &&
+            !submitting && '验证码输入错误'}
             <Mobile
               name="mobile"
               placeholder="手机号"
               rules={[
                 {
                   required: true,
-                  message: "手机号不能为空",
+                  message: '手机号不能为空',
                 },
                 {
                   pattern: /^1\d{10}$/,
-                  message: "手机号格式错误",
+                  message: '手机号格式错误',
                 },
               ]}
             />
@@ -152,7 +158,7 @@ class Login extends Component {
               rules={[
                 {
                   required: true,
-                  message: "验证码不能为空",
+                  message: '验证码不能为空',
                 },
               ]}
             />
@@ -175,9 +181,9 @@ class Login extends Component {
           </Submit>
           <div className={styles.other}>
             其他登录方式
-            <Icon type="alipay-circle" className={styles.icon} theme="outlined" />
-            <Icon type="taobao-circle" className={styles.icon} theme="outlined" />
-            <Icon type="weibo-circle" className={styles.icon} theme="outlined" />
+            <Icon type="alipay-circle" className={styles.icon} theme="outlined"/>
+            <Icon type="taobao-circle" className={styles.icon} theme="outlined"/>
+            <Icon type="weibo-circle" className={styles.icon} theme="outlined"/>
           </div>
         </LoginComponents>
       </div>
